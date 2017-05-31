@@ -24,10 +24,12 @@ RUN apt-get update -y && apt-get install -y \
     libarchive-zip-perl \
     libapache-dbi-perl \
     curl \
-    ant
-
+    ant \
+    emacs 
+    
 RUN apt-get update -y && apt-get install -y python-pip python-dev build-essential nodejs
 RUN pip install --upgrade pip
+
 
 ##########
 #GATK 3.6#
@@ -49,19 +51,6 @@ RUN cd /opt/ && unzip /tmp/${maven_package_name}-bin.zip \
     && cd /opt/${gatk_dir_name}-${gatk_version} && /opt/${maven_package_name}/bin/mvn verify -P\!queue \
     && mv /opt/${gatk_dir_name}-${gatk_version}/protected/gatk-package-distribution/target/gatk-package-distribution-${gatk_version}.jar /opt/GenomeAnalysisTK.jar \
     && rm -rf /opt/${gatk_dir_name}-${gatk_version} /opt/${maven_package_name}
-
-###############
-#Strelka 2.7.1#
-###############
-ENV STRELKA_INSTALL_DIR /opt/strelka/
-
-RUN wget https://github.com/Illumina/strelka/releases/download/v2.7.1/strelka-2.7.1.centos5_x86_64.tar.bz2 \
-    && tar xf strelka-2.7.1.centos5_x86_64.tar.bz2 \
-    && rm -f strelka-2.7.1.centos5_x86_64.tar.bz2 \
-    && mv strelka-2.7.1.centos5_x86_64 $STRELKA_INSTALL_DIR
-
-#strelka requires a couple steps to run, so add a helper script to sequence those
-COPY strelka_helper.pl /usr/bin/strelka_helper.pl
 
 ###############
 #Varscan 2.4.2#
@@ -107,25 +96,6 @@ RUN ./configure --with-htslib=$HTSLIB_INSTALL_DIR --prefix=$SAMTOOLS_INSTALL_DIR
 WORKDIR /
 RUN rm -rf /tmp/samtools-1.3.1
 
-################
-#Pindel 0.2.5b8#
-################
-WORKDIR /opt
-RUN wget https://github.com/genome/pindel/archive/v0.2.5b8.tar.gz && \
-    tar -xzf v0.2.5b8.tar.gz
-
-WORKDIR /opt/pindel-0.2.5b8
-RUN ./INSTALL /tmp/htslib-1.3.2
-
-WORKDIR /
-RUN rm -rf /tmp/htslib-1.3.2
-RUN ln -s /opt/pindel-0.2.5b8/pindel /usr/bin/pindel
-RUN ln -s /opt/pindel-0.2.5b8/pindel2vcf /usr/bin/pindel2vcf
-
-COPY pindel_helper.pl /usr/bin/pindel_helper.pl
-COPY write_pindel_filter_config.pl /usr/bin/write_pindel_filter_config.pl
-COPY somatic_indelfilter.pl /usr/bin/somatic_indelfilter.pl
-
 ###############
 #bam-readcount#
 ###############
@@ -150,23 +120,10 @@ COPY bam_readcount_helper.py /usr/bin/bam_readcount_helper.py
 
 RUN pip install cyvcf2
 
-##########
-#fpfilter#
-##########
-WORKDIR /opt
-RUN wget --no-check-certificate https://raw.githubusercontent.com/genome/fpfilter-tool/v0.1.0/fpfilter.pl && \
-    cp fpfilter.pl /usr/bin/fpfilter.pl && \
-    rm fpfilter.pl
-
 #######
 #tabix#
 #######
 RUN ln -s $HTSLIB_INSTALL_DIR/bin/tabix /usr/bin/tabix
-
-######
-#docm#
-######
-COPY docm_filter.pl /usr/bin/docm_filter.pl
 
 ########
 #VEP 86#
@@ -263,6 +220,7 @@ RUN rm -rf /tmp/verifyBamID /tmp/libStatGen
 #R#
 ###
 
-RUN apt-get update && apt-get install -y r-base littler
+RUN apt-get update && apt-get install -y r-base r-base-dev littler 
 
 RUN apt-get install -y lib32ncurses5 
+
