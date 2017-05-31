@@ -25,7 +25,8 @@ RUN apt-get update -y && apt-get install -y \
     libapache-dbi-perl \
     curl \
     ant \
-    emacs 
+    emacs \
+    emacs-goodies-el
     
 RUN apt-get update -y && apt-get install -y python-pip python-dev build-essential nodejs
 RUN pip install --upgrade pip
