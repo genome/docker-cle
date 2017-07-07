@@ -15,9 +15,9 @@ my $rundir = shift(@ARGV);
 my $configure_script = '/opt/strelka/bin/configureStrelkaSomaticWorkflow.py';
 
 system($configure_script, "--runDir=${rundir}", @ARGV) == 0
-    or die('Failed to configure.');
+    or die("Failed to configure: $!");
 
 chdir $rundir
     or die('Could not change to run directory.');
 system('./runWorkflow.py', '-m', 'local', '-j', $num_cpus) == 0
-    or die('Failed to run.');
+    or die("Failed to run: $!");
