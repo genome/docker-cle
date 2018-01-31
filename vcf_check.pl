@@ -31,9 +31,13 @@ sub vcf_is_empty {
 
     my $is_compressed = $vcf =~ /\.gz$/;
 
-    my $cmd = $is_compressed? 'zgrep' : 'grep';
-
-    my $rv = system($cmd, '-q', '-v', '#', $vcf);
+    my $rv;
+    if ($is_compressed) {
+        #hack to get around broken pipe error from `zgrep`
+        $rv = system(q(zcat ') . $vcf . q(' 2>/dev/null | grep -q -v '#'));
+    } else {
+        $rv = system('grep', '-q', '-v', '#', $vcf);
+    }
 
     if ($rv == -1) {
         die('Failed to execute command to inspect VCF: ' . $!);
