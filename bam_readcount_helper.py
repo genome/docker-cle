@@ -18,11 +18,8 @@ def generate_region_list(hash):
 
 def filter_sites_in_hash(region_list, bam_file, ref_fasta, sample, output_dir, insertion_centric, map_qual, base_qual):
     bam_readcount_cmd = ['/usr/bin/bam-readcount', '-f', ref_fasta, '-l', region_list, '-w', '0', '-b']
-    if base_qual == -1: #default value in bam_readcount.cwl
-        bam_readcount_cmd.append('20')
-    else:
-        bam_readcount_cmd.append(str(base_qual))
-    if map_qual != -1: #default value in bam_readcount.cwl
+    bam_readcount_cmd.append(str(base_qual))
+    if map_qual is not None:
         bam_readcount_cmd.extend(['-q', str(map_qual)])
     if insertion_centric:
         bam_readcount_cmd.append('-i')
@@ -38,8 +35,11 @@ def filter_sites_in_hash(region_list, bam_file, ref_fasta, sample, output_dir, i
     else:
         sys.exit(stderr)
 
-
-(script_name, min_mapping_qual, min_base_qual, vcf_filename, sample, ref_fasta, bam_file, output_dir)= sys.argv
+min_mapping_qual = None
+if len(sys.argv) == 7:
+    (script_name, min_base_qual, vcf_filename, sample, ref_fasta, bam_file, output_dir)= sys.argv
+elif len(sys.argv) == 8:
+    (script_name, min_mapping_qual, min_base_qual, vcf_filename, sample, ref_fasta, bam_file, output_dir)= sys.argv
 
 vcf_file = VCF(vcf_filename)
 sample_index = vcf_file.samples.index(sample)
