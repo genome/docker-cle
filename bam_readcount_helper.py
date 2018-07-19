@@ -32,7 +32,16 @@ def filter_sites_in_hash(region_list, bam_file, ref_fasta, sample, output_dir, i
     else:
         sys.exit(stderr)
 
-(script_name, vcf_filename, sample, ref_fasta, bam_file, output_dir, min_mapping_qual, min_base_qual)= sys.argv
+#initializing these with default values
+min_base_qual = 20
+min_mapping_qual = 0
+
+if len(sys.argv) == 6:
+    (script_name, vcf_filename, sample, ref_fasta, bam_file, output_dir)= sys.argv
+elif len(sys.argv) == 7:
+    (script_name, vcf_filename, sample, ref_fasta, bam_file, output_dir, min_base_qual)= sys.argv
+elif len(sys.argv) == 8: #elif instead of else for explicit safety
+    (script_name, vcf_filename, sample, ref_fasta, bam_file, output_dir, min_base_qual, min_mapping_qual)= sys.argv
 
 vcf_file = VCF(vcf_filename)
 sample_index = vcf_file.samples.index(sample)
