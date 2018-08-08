@@ -215,7 +215,7 @@ RUN pip install cyvcf2
 RUN pip3 install pysam
 RUN pip3 install vcfpy
 
-RUN pip3 install --extra-index-url https://testpypi.python.org/pypi vcf-annotation-tools
+RUN pip3 install vcf-annotation-tools
 
 ##########
 #fpfilter#
