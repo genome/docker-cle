@@ -209,10 +209,7 @@ RUN git clone https://github.com/genome/bam-readcount.git /tmp/bam-readcount-0.7
     ln -s /opt/bam-readcount/bin/bam-readcount /usr/bin/bam-readcount
 
 COPY bam_readcount_helper.py /usr/bin/bam_readcount_helper.py
-COPY add_bam_readcount_to_vcf_helper.py /usr/bin/add_bam_readcount_to_vcf_helper.py
 
-RUN pip install cyvcf2
-RUN pip3 install pysam
 RUN pip3 install vcfpy
 
 RUN pip3 install vcf-annotation-tools
