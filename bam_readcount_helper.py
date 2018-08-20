@@ -2,7 +2,7 @@
 
 import sys
 import os
-from cyvcf2 import VCF
+import vcfpy
 import tempfile
 import csv
 from subprocess import Popen, PIPE
@@ -35,7 +35,7 @@ def filter_sites_in_hash(region_list, bam_file, ref_fasta, sample, output_dir, i
 
 (script_name, vcf_filename, sample, ref_fasta, bam_file, output_dir)= sys.argv
 
-vcf_file = VCF(vcf_filename)
+vcf_file = vcfpy.Reader.from_path(vcf_filename)
 sample_index = vcf_file.samples.index(sample)
 
 rc_for_indel = {}
@@ -51,8 +51,6 @@ for variant in vcf_file:
         var = ""
     ref = variant.REF
     chr = variant.CHROM
-    start = variant.start
-    end = variant.end
     pos = variant.POS
 
     if len(ref) > 1 or len(var) > 1:
