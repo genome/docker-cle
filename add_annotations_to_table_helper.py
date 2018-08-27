@@ -90,15 +90,18 @@ for variant in vcf_file:
     csq = variant.INFO.get('CSQ')
     if csq is not None:
         transcripts = parse_csq_entries(csq.split(','), csq_fields)
-    alleles_dict = resolve_alleles(variant, transcripts.keys())
-    for alt in alts:
-        if alt not in vep[chr][pos][ref]:
-            if transcripts is not None and alleles_dict[alt] in transcripts:
-                vep[chr][pos][ref][alt] = transcript_for_alt(transcripts, alleles_dict[alt])
+        alleles_dict = resolve_alleles(variant, transcripts.keys())
+        for alt in alts:
+            if alt not in vep[chr][pos][ref]:
+                if transcripts is not None and alleles_dict[alt] in transcripts:
+                    vep[chr][pos][ref][alt] = transcript_for_alt(transcripts, alleles_dict[alt])
+                else:
+                    vep[chr][pos][ref][alt] = None
             else:
-                vep[chr][pos][ref][alt] = None
-        else:
-            sys.exit("VEP entry for at CHR %s, POS %s, REF %s , ALT % already exists" % (chr, pos, ref, alt) )
+                sys.exit("VEP entry for at CHR %s, POS %s, REF %s , ALT % already exists" % (chr, pos, ref, alt) )
+    else:
+        for alt in alts:
+            vep[chr][pos][ref][alt] = None
 
 
 with open(tsv_filename, 'r') as input_filehandle:
