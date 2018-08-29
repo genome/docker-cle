@@ -225,3 +225,7 @@ RUN apt-get update && apt-get install -y r-base r-base-dev littler
 
 RUN apt-get install -y lib32ncurses5 
 
+####################
+#mapq filter script#
+####################
+COPY mapq0_vcf_filter.sh /usr/bin/mapq0_vcf_filter.sh
