@@ -16,13 +16,13 @@ def generate_region_list(hash):
     fh.close()
     return fh.name
 
-def filter_sites_in_hash(region_list, bam_file, ref_fasta, output_dir, insertion_centric):
+def filter_sites_in_hash(region_list, bam_file, ref_fasta, sample, output_dir, insertion_centric):
     bam_readcount_cmd = ['/usr/bin/bam-readcount', '-f', ref_fasta, '-l', region_list, '-w', '0', '-b', '20']
     if insertion_centric:
         bam_readcount_cmd.append('-i')
-        output_file = os.path.join(output_dir, 'bam_readcount_indel.tsv')
+        output_file = os.path.join(output_dir, sample + '_bam_readcount_indel.tsv')
     else:
-        output_file = os.path.join(output_dir, 'bam_readcount_snv.tsv')
+        output_file = os.path.join(output_dir, sample + '_bam_readcount_snv.tsv')
     bam_readcount_cmd.append(bam_file)
     execution = Popen(bam_readcount_cmd, stdout=PIPE, stderr=PIPE)
     stdout, stderr = execution.communicate()
@@ -69,13 +69,13 @@ for variant in vcf_file:
         else:
             #it's an insertion
             var = "+%s" % var[1:]
-            if chr not in rc_for_indel:
-                rc_for_indel[chr] = {}
-            if pos not in rc_for_indel[chr]:
-                rc_for_indel[chr][pos] = {}
-            if ref not in rc_for_indel[chr][pos]:
-                rc_for_indel[chr][pos][ref] = {}
-            rc_for_indel[chr][pos][ref] = variant
+        if chr not in rc_for_indel:
+            rc_for_indel[chr] = {}
+        if pos not in rc_for_indel[chr]:
+            rc_for_indel[chr][pos] = {}
+        if ref not in rc_for_indel[chr][pos]:
+            rc_for_indel[chr][pos][ref] = {}
+        rc_for_indel[chr][pos][ref] = variant
     else:
         #it's a SNP
         if chr not in rc_for_snp:
@@ -88,8 +88,14 @@ for variant in vcf_file:
 
 if len(rc_for_snp.keys()) > 0:
     region_file = generate_region_list(rc_for_snp)
-    filter_sites_in_hash(region_file, bam_file, ref_fasta, output_dir, False)
+    filter_sites_in_hash(region_file, bam_file, ref_fasta, sample, output_dir, False)
+else:
+    output_file = os.path.join(output_dir, sample + '_bam_readcount_snv.tsv')
+    open(output_file, 'w').close()
 
 if len(rc_for_indel.keys()) > 0:
     region_file = generate_region_list(rc_for_indel)
-    filter_sites_in_hash(region_file, bam_file, ref_fasta, output_dir, True)
+    filter_sites_in_hash(region_file, bam_file, ref_fasta, sample, output_dir, True)
+else:
+    output_file = os.path.join(output_dir, sample + '_bam_readcount_indel.tsv')
+    open(output_file, 'w').close()

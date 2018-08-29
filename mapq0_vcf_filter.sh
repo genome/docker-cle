@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 vcf=$1
 bam=$2
