@@ -211,10 +211,18 @@ RUN git clone https://github.com/genome/bam-readcount.git /tmp/bam-readcount-0.7
 COPY bam_readcount_helper.py /usr/bin/bam_readcount_helper.py
 COPY add_bam_readcount_to_vcf_helper.py /usr/bin/add_bam_readcount_to_vcf_helper.py
 
+########
+#cyvcf #
+########
+RUN apt-get update && \
+    apt-get install -y \
+    libcurl3 \
+    libcurl4-openssl-dev \
+    libssl-dev
+
 RUN pip install cyvcf2
 RUN pip3 install pysam
 RUN pip3 install vcfpy
-
 RUN pip3 install vcf-annotation-tools
 
 ##########
@@ -354,3 +362,11 @@ RUN wget --no-check-certificate https://github.com/fulcrumgenomics/fgbio/release
 
 COPY umi_alignment.sh /usr/bin/umi_alignment.sh
 COPY umi_realignment.sh /usr/bin/umi_realignment.sh
+
+##############
+#mapq0 filter#
+##############
+COPY mapq0_vcf_filter.sh /usr/bin/mapq0_vcf_filter.sh
+RUN chmod +x /usr/bin/mapq0_vcf_filter.sh
+RUN pip install pysam==0.11.2.2
+RUN pip install pysamstats
