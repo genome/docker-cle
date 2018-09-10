@@ -45,6 +45,4 @@ fi
 #finally, set the filter tags on the vcf
 #the multiplication by 1.0 is necessary to convert integers to floats before dividing in the JEXL expression 
 #(which is dumb, and I want an hour of my life back)
-java -jar /opt/GenomeAnalysisTK.jar -T VariantFiltration -R $ref_fasta -o $outdir/filtered.vcf --variant $outdir/mapq0.vcf --filterExpression "((MQ0*1.0) / (DP*1.0)) > $mapq0perc" --filterName "MAPQ0"
-
-gzip -c $outdir/filtered.vcf >$outvcf
+java -jar /opt/GenomeAnalysisTK.jar -T VariantFiltration -R $ref_fasta -o $outdir/mapq_filtered.vcf.gz --variant $outdir/mapq0.vcf --filterExpression "((MQ0*1.0) / (DP*1.0)) > $mapq0perc" --filterName "MAPQ0"
