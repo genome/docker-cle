@@ -245,14 +245,14 @@ COPY docm_filter.pl /usr/bin/docm_filter.pl
 COPY single_sample_docm_filter.pl /usr/bin/single_sample_docm_filter.pl
 
 ########
-#VEP 90#
+#VEP 93#
 ########
 RUN mkdir /opt/vep/
 WORKDIR /opt/vep
 
 RUN git clone https://github.com/Ensembl/ensembl-vep.git
 WORKDIR /opt/vep/ensembl-vep
-RUN git checkout postreleasefix/90
+RUN git checkout postreleasefix/93
 
 RUN perl INSTALL.pl --NO_UPDATE
 
