@@ -92,7 +92,7 @@ def create_vcf_reader(args):
         raise Exception("No " + args.allele_depth_field + " format field found. Annotate your VCF with readcounts first")
     if not args.site_depth_field in vcf_reader.header.format_ids():
         vcf_reader.close()
-        raise Exception("No " + args.site_depth_field + " format field found. Annotate your VCF with readcounts first")
+        raise Exception("No {} format field found. Annotate your VCF with readcounts first".format(args.site_depth_field))
 
     return vcf_reader
 
