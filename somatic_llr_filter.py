@@ -147,7 +147,7 @@ def create_vcf_writer(args, vcf_reader):
         new_header.add_info_line(od)
 
     #check/add FILTER field in header
-    if not args.llr_threshold == None: #filtering may not even be specified
+    if args.llr_threshold is not None: #filtering may not even be specified
         if args.filter_field in vcf_reader.header.filter_ids():
             if not args.overwrite:
                 vcf_reader.close()
