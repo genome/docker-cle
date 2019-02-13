@@ -236,10 +236,16 @@ def main(args_input = sys.argv[1:]):
         if len(alts) > 1:
              raise Exception("site with multiple alleles detected. This tool requires a decomposed vcf (one allele per line) so that INFO fields can be set appropriately")
 
-        ad_nrm = entry.call_for_sample[args.normal_sample_name].data[args.allele_depth_field]
-        ad_tum = entry.call_for_sample[args.tumor_sample_name].data[args.allele_depth_field]
-        normal_depth = entry.call_for_sample[args.tumor_sample_name].data[args.site_depth_field]
-        tumor_depth = entry.call_for_sample[args.tumor_sample_name].data[args.site_depth_field]
+        def getFormatField(sample_name, field_name):
+            if(sample_name in entry.call_for_sample and field_name in entry.call_for_sample[sample_name].data):
+                return entry.call_for_sample[sample_name].data[field_name]
+            raise Exception("Field {} missing in an entry for Sample {}".format(field_name, sample_name))
+
+
+        ad_nrm = getFormatField(args.normal_sample_name,args.allele_depth_field)
+        ad_tum = getFormatField(args.tumor_sample_name,args.allele_depth_field)
+        normal_depth = getFormatField(args.tumor_sample_name,args.site_depth_field)
+        tumor_depth = getFormatField(args.tumor_sample_name,args.site_depth_field)
         normal_ref = ad_nrm[0]
         tumor_ref = ad_tum[0]
 
