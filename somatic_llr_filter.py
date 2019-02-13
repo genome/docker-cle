@@ -9,21 +9,7 @@ import math
 from collections import OrderedDict
 
 def define_parser():
-# inputs:
-# required:
-# - somatic vcf, with tumor and normal readcounts
-
-# optional:
-#  - sequence error rate (range 0 to 1) - default 0.005
-#  - tumor purity (range 0 to 1) - default 1
-#  - normal contamination rate (range 0 to 1) - default 1
-#  - llr cutoff at which to apply filter - default 1
-#  - field corresponding to allele depth - default AD
-#  - field corresponding to site depth - default DP
-#  - tumor sample name - default TUMOR
-#  - normal sample name - default NORMAL
-
-    parser = argparse.ArgumentParser('vcf-binomial-filter')
+    parser = argparse.ArgumentParser('somatic-llr-filter')
     parser.add_argument(
         "input_vcf",
         help="A VCF file with at least two samples (tumor and normal) and readcount information"
@@ -34,7 +20,7 @@ def define_parser():
     )
     parser.add_argument(
         "--sequence-error-rate",
-        help="expected sequencing error rate (range 0 to 1) - default 0.01",
+        help="expected sequencing error rate (range 0 to 1) - default 0.005",
         type=float,
         default=0.005
     )
@@ -101,12 +87,12 @@ def create_vcf_reader(args):
         raise Exception("Could not find normal sample name {} in sample names".format(args.normal_sample_name))
 
     #check for needed format fields
-    if not 'AD' in vcf_reader.header.format_ids():
+    if not args.allele_depth_field in vcf_reader.header.format_ids():
         vcf_reader.close()
-        raise Exception("No AD format field found. Annotate your VCF with readcounts first")
-    if not 'DP' in vcf_reader.header.format_ids():
+        raise Exception("No " + args.allele_depth_field + " format field found. Annotate your VCF with readcounts first")
+    if not args.site_depth_field in vcf_reader.header.format_ids():
         vcf_reader.close()
-        raise Exception("No DP format field found. Annotate your VCF with readcounts first")
+        raise Exception("No " + args.site_depth_field + " format field found. Annotate your VCF with readcounts first")
 
     return vcf_reader
 
