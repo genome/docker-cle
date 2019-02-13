@@ -319,7 +319,7 @@ def main(args_input = sys.argv[1:]):
         entry.INFO[args.llr_field] = llr
 
         #do filtering if specified
-        if not args.llr_threshold == None:
+        if args.llr_threshold is not None:
             if (not call == "Somatic") or (llr < args.llr_threshold):
                 entry.FILTER.append(args.filter_field);
 
