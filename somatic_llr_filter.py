@@ -106,6 +106,9 @@ def create_vcf_writer(args, vcf_reader):
         if not args.overwrite:
             vcf_reader.close()
             raise Exception("INFO already contains a {} field. Choose a different label, or use the --overwrite flag to retain this field description and overwrite values".format(args.llr_field))
+        #else:
+        #todo? verify that the number and type matches what we're going to be adding
+        #if not, raise error
     else:
         od = OrderedDict([('ID', args.llr_field), ('Number', '1'), ('Type', 'Float'), ('Description', 'log-likelihood ratio for the binomial filter call')])
         new_header.add_info_line(od)
@@ -210,7 +213,7 @@ def make_call(normal_ref, normal_var, tumor_ref, tumor_var, error_rate, heterozy
     if max_call is None:
         max_call = "-"
 
-    return [llr,max_call]
+    return (llr,max_call)
 
 
 
@@ -268,16 +271,16 @@ def main(args_input = sys.argv[1:]):
             elif tumor_freq == 1:
                 tumor_freq = tumor_freq - args.sequence_error_rate
 
-            call = make_call(normal_ref, normal_var, tumor_ref, tumor_var, args.sequence_error_rate, heterozygous_expect,
+            (llr,call) = make_call(normal_ref, normal_var, tumor_ref, tumor_var, args.sequence_error_rate, heterozygous_expect,
               homozygous_expect, tumor_freq, args.tumor_purity, args.normal_contamination_rate, error_expect)
 
         #Store it back in the entry before writing out.
-        if call[1] == "Somatic":
+        if call == "Somatic":
             entry.INFO[args.somatic_field] = 1
         else:
             entry.INFO.pop('SOMATIC',None)
 
-        entry.INFO[args.llr_field] = call[0]
+        entry.INFO[args.llr_field] = llr
         vcf_writer.write_record(entry)
 
     vcf_reader.close()
