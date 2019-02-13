@@ -103,18 +103,30 @@ def create_vcf_writer(args, vcf_reader):
     new_header = vcf_reader.header.copy()
 
     if args.llr_field in vcf_reader.header.info_ids():
-        if not args.overwrite:
+        if args.overwrite:  #verify compatibility
+            if not vcf_reader.header.get_info_field_info(args.llr_field).type == "Float":
+                vcf_reader.close()
+                raise Exception("{} field to be overwritten must be of type 'Float'. Either modify this, or choose a new {} field".format(args.llr_field,args.llr_field))
+            if not vcf_reader.header.get_info_field_info(args.llr_field).number == 1:
+                vcf_reader.close()
+                raise Exception("{} field to be overwritten must have Number '1'. Either modify this, or choose a new {} field".format(args.llr_field,args.llr_field))
+        else: 
             vcf_reader.close()
             raise Exception("INFO already contains a {} field. Choose a different label, or use the --overwrite flag to retain this field description and overwrite values".format(args.llr_field))
-        #else:
-        #todo? verify that the number and type matches what we're going to be adding
-        #if not, raise error
+
     else:
         od = OrderedDict([('ID', args.llr_field), ('Number', '1'), ('Type', 'Float'), ('Description', 'log-likelihood ratio for the binomial filter call')])
         new_header.add_info_line(od)
 
     if args.somatic_field in vcf_reader.header.info_ids():
-        if not args.overwrite:
+        if args.overwrite:
+            if not vcf_reader.header.get_info_field_info(args.somatic_field).type == "Flag":
+                vcf_reader.close()
+                raise Exception("{} field to be overwritten must be of type 'Flag'. Either modify this, or choose a new {} field".format(args.somatic_field,args.somatic_field))
+            if not vcf_reader.header.get_info_field_info(args.somatic_field).number == 0:
+                vcf_reader.close()
+                raise Exception("{} field to be overwritten must have Number '0'. Either modify this, or choose a new {} field".format(args.somatic_field,args.somatic_field))
+        else:
             vcf_reader.close()
             raise Exception("INFO already contains a {} field. Choose a different label, or use the --overwrite flag to retain this field description and overwrite values".format(args.somatic_field))
     else:
