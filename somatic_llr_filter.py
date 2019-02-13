@@ -124,12 +124,6 @@ def create_vcf_writer(args, vcf_reader):
 #for each call possibility (ref, germ het, germ hom, etc)
 #calculate the llr here
 def calc_llr(normal_expect, tumor_expect, normal_ref, normal_var, tumor_ref, tumor_var):
-    print(["{0:0.2f}".format(i) for i in [normal_expect, tumor_expect, normal_ref, normal_var, tumor_ref, tumor_var]])
-    print(["{0:0.4f}".format(i) for i in [normal_ref * math.log(1-normal_expect),
-                                          normal_var * math.log(normal_expect),
-                                          tumor_ref * math.log(1-tumor_expect),
-                                          tumor_var * math.log(tumor_expect)]])
-
     return(normal_ref * math.log(1-normal_expect) +
            normal_var * math.log(normal_expect) +
            tumor_ref * math.log(1-tumor_expect) +
@@ -137,7 +131,6 @@ def calc_llr(normal_expect, tumor_expect, normal_ref, normal_var, tumor_ref, tum
 
 def get_llr(call, normal_ref, normal_var, tumor_ref, tumor_var, error_rate, heterozygous_expect,
             homozygous_expect, tumor_freq, tumor_purity, normal_contamination_rate, error_expect):
-    print(call)
     if call == "Germline_het":
         return(calc_llr(heterozygous_expect, heterozygous_expect,
                        normal_ref, normal_var, tumor_ref, tumor_var))
@@ -236,7 +229,6 @@ def main(args_input = sys.argv[1:]):
         #collect the needed info
         ref = entry.REF
         alts = entry.ALT
-        print(alts)
 
         #this code will mostly handle multiple alleles, as written, but the issue is that there is
         #no way to set the INFO (SOMATIC) field appropriately when there are multiple alleles per line,
