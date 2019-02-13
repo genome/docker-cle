@@ -371,5 +371,5 @@ RUN chmod +x /usr/bin/mapq0_vcf_filter.sh
 RUN pip install pysam==0.11.2.2
 RUN pip install pysamstats
 
-copy somatic_llr_filter.py /usr/bin/somatic_llr_filter.py
+COPY somatic_llr_filter.py /usr/bin/somatic_llr_filter.py
 RUN chmod +x /usr/bin/somatic_llr_filter.py
