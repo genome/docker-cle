@@ -66,6 +66,17 @@ def define_parser():
         help="name of the vcf info field in which to store the classification call from this script (somatic = 0 or 1)",
         default="SOMATIC"
     )
+    parser.add_argument(
+        "--llr-threshold",
+        type=float,
+        help="if set, variants that are not somatic or have an LLR value below this threshold will have their FILTER field set appropriately"
+    )
+    parser.add_argument(
+        "--filter-field",
+        help="if --llr-threshold is given, then failing variants will have this string added to their FILTER field",
+        default="SOMATIC_LLR"
+    )
+   
     parser.add_argument('-w', "--overwrite", action='store_true',
         help="by default, this tool will raise an exception if the LLR or SOMATIC fields already exist in the VCF. This flag allows existing fields to be overwritten."
     )
@@ -102,6 +113,7 @@ def create_vcf_writer(args, vcf_reader):
 
     new_header = vcf_reader.header.copy()
 
+    #check/add llr field in header
     if args.llr_field in vcf_reader.header.info_ids():
         if args.overwrite:  #verify compatibility
             if not vcf_reader.header.get_info_field_info(args.llr_field).type == "Float":
@@ -118,6 +130,7 @@ def create_vcf_writer(args, vcf_reader):
         od = OrderedDict([('ID', args.llr_field), ('Number', '1'), ('Type', 'Float'), ('Description', 'log-likelihood ratio for the binomial filter call')])
         new_header.add_info_line(od)
 
+    #check/add somatic field in header
     if args.somatic_field in vcf_reader.header.info_ids():
         if args.overwrite:
             if not vcf_reader.header.get_info_field_info(args.somatic_field).type == "Flag":
@@ -132,6 +145,17 @@ def create_vcf_writer(args, vcf_reader):
     else:
         od = OrderedDict([('ID', args.somatic_field), ('Number', '0'), ('Type', 'Flag'), ('Description', 'Is a somatic mutation')])
         new_header.add_info_line(od)
+
+    #check/add FILTER field in header
+    if args.llr_threshold is not None: #filtering may not even be specified
+        if args.filter_field in vcf_reader.header.filter_ids():
+            if not args.overwrite:
+                vcf_reader.close()
+                raise Exception("FILTER {} already exists. Choose a different --filter-field, or use the --overwrite flag to retain this filter description and overwrite values".format(args.filter_field))
+        else:
+            od = OrderedDict([('ID', args.filter_field), ('Description', 'Is a somatic mutation with LLR greater than {}'.format(args.llr_threshold))])
+            new_header.add_filter_line(od)
+
 
     return vcfpy.Writer.from_path(output_file, new_header)
 
@@ -293,6 +317,12 @@ def main(args_input = sys.argv[1:]):
             entry.INFO.pop('SOMATIC',None)
 
         entry.INFO[args.llr_field] = llr
+
+        #do filtering if specified
+        if args.llr_threshold is not None:
+            if (not call == "Somatic") or (llr < args.llr_threshold):
+                entry.FILTER.append(args.filter_field);
+
         vcf_writer.write_record(entry)
 
     vcf_reader.close()
