@@ -33,7 +33,7 @@ while (<$docm_vcf_fh>) {
     }
     elsif (/^#CHROM/) {
         if ($ignore_docm_flag and $ignore_docm_flag eq 'ignoreDOCM') {
-            say $docm_filter_fh '##FILTER=<ID=IgnoreDOCM,Description="ignore Docm variants">';
+            say $docm_filter_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
         }
         my @columns = split /\t/, $_;
         my %index = (
@@ -57,7 +57,7 @@ while (<$docm_vcf_fh>) {
         my @AD = split /,/, $AD;
         shift @AD; #the first one is ref count
         if ($ignore_docm_flag and $ignore_docm_flag eq 'ignoreDOCM') {
-            $columns[6] = 'IgnoreDOCM';
+            $columns[6] = 'DOCM_ONLY';
         }
         for my $ad (@AD) {
             if ($ad > 5 and $ad/$DP > 0.01) {
