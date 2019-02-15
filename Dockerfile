@@ -363,13 +363,10 @@ RUN wget --no-check-certificate https://github.com/fulcrumgenomics/fgbio/release
 COPY umi_alignment.sh /usr/bin/umi_alignment.sh
 COPY umi_realignment.sh /usr/bin/umi_realignment.sh
 
-#######################
-#vcf filtering scripts#
-#######################
+##############
+#mapq0 filter"
+##############
 COPY mapq0_vcf_filter.sh /usr/bin/mapq0_vcf_filter.sh
 RUN chmod +x /usr/bin/mapq0_vcf_filter.sh
 RUN pip install pysam==0.11.2.2
 RUN pip install pysamstats
-
-COPY somatic_llr_filter.py /usr/bin/somatic_llr_filter.py
-RUN chmod +x /usr/bin/somatic_llr_filter.py
