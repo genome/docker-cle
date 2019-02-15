@@ -5,8 +5,8 @@ use warnings;
 
 use feature qw(say);
 
-die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_dir") unless scalar(@ARGV) == 4;
-my ($docm_out_vcf, $normal_cram, $tumor_cram, $outdir, $ignore_docm_flag) = @ARGV;
+die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_vcf_file") unless scalar(@ARGV) == 4;
+my ($docm_out_vcf, $normal_cram, $tumor_cram, $outfile, $ignore_docm_flag) = @ARGV;
 
 my $samtools = '/opt/samtools/bin/samtools';
 my $normal_header_str = `$samtools view -H $normal_cram`;
@@ -21,8 +21,8 @@ unless ($normal_name and $tumor_name) {
 
 open(my $docm_vcf_fh, $docm_out_vcf)
     or die("couldn't open $docm_out_vcf to read");
-open(my $docm_filter_fh, ">", "$outdir/docm_filter_out.vcf")
-    or die("couldn't open docm_filter_out.vcf for write");
+open(my $docm_filter_fh, ">", "$outfile")
+    or die("couldn't open $outfile for write");
 
 my ($normal_index, $tumor_index);
 
