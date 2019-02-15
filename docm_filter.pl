@@ -32,7 +32,7 @@ while (<$docm_vcf_fh>) {
         say $docm_filter_fh $_;
     }
     elsif (/^#CHROM/) {
-        if ($ignore_docm_flag and $ignore_docm_flag eq 'ignoreDOCM') {
+        if ($ignore_docm_flag and $ignore_docm_flag eq "1") {
             say $docm_filter_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
         }
         my @columns = split /\t/, $_;
