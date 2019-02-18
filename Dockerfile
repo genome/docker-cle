@@ -219,8 +219,8 @@ RUN apt-get update && \
     libcurl3 \
     libcurl4-openssl-dev \
     libssl-dev \ 
-    libbz2 \ 
-    lzma-dev 
+    libbz2-dev \
+    liblzma-dev 
 
 RUN pip install cyvcf2
 RUN pip3 install pysam
