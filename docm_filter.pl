@@ -5,8 +5,8 @@ use warnings;
 
 use feature qw(say);
 
-die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_vcf_file") unless scalar(@ARGV) == 4;
-my ($docm_out_vcf, $normal_cram, $tumor_cram, $outfile, $ignore_docm_flag) = @ARGV;
+die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_vcf_file, set_filter_flag") unless scalar(@ARGV) == 5;
+my ($docm_out_vcf, $normal_cram, $tumor_cram, $outfile, $set_filter_flag) = @ARGV;
 
 my $samtools = '/opt/samtools/bin/samtools';
 my $normal_header_str = `$samtools view -H $normal_cram`;
@@ -32,7 +32,7 @@ while (<$docm_vcf_fh>) {
         say $docm_filter_fh $_;
     }
     elsif (/^#CHROM/) {
-        if ($ignore_docm_flag) {
+        if ($set_filter_flag) {
             say $docm_filter_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
         }
         my @columns = split /\t/, $_;
@@ -56,7 +56,7 @@ while (<$docm_vcf_fh>) {
         next unless $AD;
         my @AD = split /,/, $AD;
         shift @AD; #the first one is ref count
-        if ($ignore_docm_flag) {
+        if ($set_filter_flag) {
             $columns[6] = 'DOCM_ONLY';
         }
         for my $ad (@AD) {
