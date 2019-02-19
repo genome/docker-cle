@@ -370,5 +370,4 @@ COPY umi_realignment.sh /usr/bin/umi_realignment.sh
 ##############
 COPY mapq0_vcf_filter.sh /usr/bin/mapq0_vcf_filter.sh
 RUN chmod +x /usr/bin/mapq0_vcf_filter.sh
-RUN pip install pysam==0.11.2.2
 RUN pip install pysamstats
