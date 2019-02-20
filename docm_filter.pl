@@ -5,8 +5,8 @@ use warnings;
 
 use feature qw(say);
 
-die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_dir") unless scalar(@ARGV) == 4;
-my ($docm_out_vcf, $normal_cram, $tumor_cram, $outdir) = @ARGV;
+die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_vcf_file, set_filter_flag") unless scalar(@ARGV) == 5;
+my ($docm_out_vcf, $normal_cram, $tumor_cram, $outfile, $set_filter_flag) = @ARGV;
 
 my $samtools = '/opt/samtools/bin/samtools';
 my $normal_header_str = `$samtools view -H $normal_cram`;
@@ -21,8 +21,8 @@ unless ($normal_name and $tumor_name) {
 
 open(my $docm_vcf_fh, $docm_out_vcf)
     or die("couldn't open $docm_out_vcf to read");
-open(my $docm_filter_fh, ">", "$outdir/docm_filter_out.vcf")
-    or die("couldn't open docm_filter_out.vcf for write");
+open(my $docm_filter_fh, ">", "$outfile")
+    or die("couldn't open $outfile for write");
 
 my ($normal_index, $tumor_index);
 
@@ -32,6 +32,9 @@ while (<$docm_vcf_fh>) {
         say $docm_filter_fh $_;
     }
     elsif (/^#CHROM/) {
+        if ($set_filter_flag) {
+            say $docm_filter_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
+        }
         my @columns = split /\t/, $_;
         my %index = (
             $columns[9]  => 9,
@@ -53,6 +56,9 @@ while (<$docm_vcf_fh>) {
         next unless $AD;
         my @AD = split /,/, $AD;
         shift @AD; #the first one is ref count
+        if ($set_filter_flag) {
+            $columns[6] = 'DOCM_ONLY';
+        }
         for my $ad (@AD) {
             if ($ad > 5 and $ad/$DP > 0.01) {
                 my ($normal_col, $tumor_col) = map{$columns[$_]}($normal_index, $tumor_index);
