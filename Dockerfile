@@ -218,7 +218,9 @@ RUN apt-get update && \
     apt-get install -y \
     libcurl3 \
     libcurl4-openssl-dev \
-    libssl-dev
+    libssl-dev \ 
+    libbz2-dev \
+    liblzma-dev 
 
 RUN pip install cyvcf2
 RUN pip3 install pysam
@@ -321,15 +323,10 @@ RUN dpkg-reconfigure --frontend noninteractive tzdata
 #verifyBamId#
 #############
 RUN apt-get update && apt-get install -y build-essential gcc-multilib apt-utils zlib1g-dev git
-
 RUN cd /tmp/ && git clone https://github.com/statgen/verifyBamID.git && git clone https://github.com/statgen/libStatGen.git
-
 RUN cd /tmp/libStatGen && git checkout tags/v1.0.14
-
 RUN cd /tmp/verifyBamID && git checkout tags/v1.1.3 && make
-
 RUN cp /tmp/verifyBamID/bin/verifyBamID /usr/local/bin
-
 RUN rm -rf /tmp/verifyBamID /tmp/libStatGen
 
 ###
@@ -347,7 +344,6 @@ RUN Rscript -e 'install.packages("ggplot2", repos="http://cran.us.r-project.org"
 ###########
 #vcf_check#
 ###########
-
 COPY vcf_check.pl /usr/bin/vcf_check.pl
 
 #############
@@ -359,14 +355,5 @@ RUN wget --no-check-certificate https://github.com/fulcrumgenomics/fgbio/release
 ###############
 #umi alignment#
 ###############
-
 COPY umi_alignment.sh /usr/bin/umi_alignment.sh
 COPY umi_realignment.sh /usr/bin/umi_realignment.sh
-
-##############
-#mapq0 filter"
-##############
-COPY mapq0_vcf_filter.sh /usr/bin/mapq0_vcf_filter.sh
-RUN chmod +x /usr/bin/mapq0_vcf_filter.sh
-RUN pip install pysam==0.11.2.2
-RUN pip install pysamstats
