@@ -5,8 +5,8 @@ use warnings;
 
 use feature qw(say);
 
-die("Wrong number of arguments. Provide docm_out_vcf, normal_cram, tumor_cram, output_vcf_file, set_filter_flag") unless scalar(@ARGV) == 5;
-my ($docm_out_vcf, $normal_cram, $tumor_cram, $outfile, $set_filter_flag) = @ARGV;
+die("Wrong number of arguments. Provide docm_vcf, normal_cram, tumor_cram, output_vcf_file, set_filter_flag") unless scalar(@ARGV) == 5;
+my ($docm_vcf, $normal_cram, $tumor_cram, $output_vcf_file, $set_filter_flag) = @ARGV;
 
 my $samtools = '/opt/samtools/bin/samtools';
 my $normal_header_str = `$samtools view -H $normal_cram`;
@@ -19,21 +19,24 @@ unless ($normal_name and $tumor_name) {
     die "Failed to get normal_name: $normal_name from $normal_cram AND tumor_name: $tumor_name from $tumor_cram";
 }
 
-open(my $docm_vcf_fh, $docm_out_vcf)
-    or die("couldn't open $docm_out_vcf to read");
-open(my $docm_filter_fh, ">", "$outfile")
-    or die("couldn't open $outfile for write");
+my $docm_vcf_fh;
+if($docm_vcf =~ /.gz$/){
+    open($docm_vcf_fh, "gunzip -c $docm_vcf |") or die("couldn't open $docm_vcf to read");
+} else {
+    open($docm_vcf_fh, $docm_vcf) or die("couldn't open $docm_vcf to read");
+}
+open(my $docm_out_fh, ">", "$output_vcf_file") or die("couldn't open $output_vcf_file for write");
 
 my ($normal_index, $tumor_index);
 
 while (<$docm_vcf_fh>) {
     chomp;
     if (/^##/) {
-        say $docm_filter_fh $_;
+        say $docm_out_fh $_;
     }
     elsif (/^#CHROM/) {
         if ($set_filter_flag) {
-            say $docm_filter_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
+            say $docm_out_fh '##FILTER=<ID=DOCM_ONLY,Description="ignore Docm variants">';
         }
         my @columns = split /\t/, $_;
         my %index = (
@@ -47,7 +50,7 @@ while (<$docm_vcf_fh>) {
         $columns[9]  = 'NORMAL';
         $columns[10] = 'TUMOR';
         my $header = join "\t", @columns;
-        say $docm_filter_fh $header;
+        say $docm_out_fh $header;
     }
     else {
         my @columns = split /\t/, $_;
@@ -65,7 +68,7 @@ while (<$docm_vcf_fh>) {
                 $columns[9]  = $normal_col;
                 $columns[10] = $tumor_col;
                 my $new_line = join "\t", @columns;
-                say $docm_filter_fh $new_line;
+                say $docm_out_fh $new_line;
                 last;
             }
         }
@@ -73,4 +76,4 @@ while (<$docm_vcf_fh>) {
 }
 
 close($docm_vcf_fh);
-close($docm_filter_fh);
+close($docm_out_fh);
