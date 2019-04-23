@@ -17,4 +17,4 @@ $fh->say(join("\t", $normal_bam, $insert_size, 'NORMAL'));
 $fh->say(join("\t", $tumor_bam, $insert_size, 'TUMOR'));
 $fh->close;
 
-exit system(qw(/usr/bin/pindel -i pindel.config -w 20 -o all), @args);
+exit system(qw(/usr/bin/pindel -i pindel.config -w 10 -T 4 -o all), @args);
