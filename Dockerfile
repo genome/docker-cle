@@ -297,7 +297,7 @@ RUN mkdir /opt/picard-2.18.1/ \
     && ln -s /opt/picard-2.18.1 /usr/picard
 
 COPY split_interval_list_helper.pl /usr/bin/split_interval_list_helper.pl
-
+COPY split_interval_list_to_bed_helper.pl /usr/bin/split_interval_list_to_bed_helper.pl
 
 ######
 #Toil#
