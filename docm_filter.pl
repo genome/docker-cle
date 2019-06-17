@@ -59,14 +59,18 @@ while (<$docm_vcf_fh>) {
         next unless $AD;
         my @AD = split /,/, $AD;
         shift @AD; #the first one is ref count
-        if ($set_filter_flag) {
-            $columns[6] = 'DOCM_ONLY';
-        }
+        
         for my $ad (@AD) {
             if ($ad > 5 and $ad/$DP > 0.01) {
                 my ($normal_col, $tumor_col) = map{$columns[$_]}($normal_index, $tumor_index);
                 $columns[9]  = $normal_col;
                 $columns[10] = $tumor_col;
+                if ($set_filter_flag) {
+                    $columns[6] = 'DOCM_ONLY';
+                }
+                else {
+                    $columns[6] = '.';
+                }
                 my $new_line = join "\t", @columns;
                 say $docm_out_fh $new_line;
                 last;
